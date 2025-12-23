@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEAC Visa Status Check</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        /* --- ESTILOS (TUS ESTILOS ORIGINALES, SIN TOCAR) --- */
+        :root { --primary-blue: #0051a3; --primary-blue-light: #007bff; --secondary-gray: #5a6772; --light-gray-bg: #f8f8f8; --white: #ffffff; --border-color: #dfe1e2; --error-red: #d93638; --warning-orange: #f57c00; --success-green: #2e7d32; --location-link-color: #5d47cd; --barcode-text-color: #212121; --input-bg: #e2e2e2; --input-focus-bg: #fdffce; --new-purple: #6a0dad; --navy-blue: #002077; }
+        body, html { margin: 0; padding: 0; font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: var(--light-gray-bg); color: var(--secondary-gray); line-height: 1.6; box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: inherit; }
+        .page-wrapper { width: 800px; max-width: none; margin: 0; background-color: var(--white); box-shadow: 0 0 25px rgba(0,0,0,0.1); }
+        @media (max-width: 850px) { .page-wrapper { width: 100%; box-shadow: none; } .main-content { margin: 20px 0; padding: 0 15px; } .form-outer-card { width: 100% !important; max-width: none; margin-left: auto !important; margin-right: auto !important; padding: 15px; } .form-select { width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; } .form-group input { width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; } .footer-pattern { position: relative; width: 100%; height: auto; padding: 0; margin-top: 30px; margin-bottom: 0; background: none; } .footer-content { position: relative; z-index: 1; display: flex; flex-direction: row; align-items: center; text-align: left; width: 100%; padding: 20px 15px; background: #ffffff; background-image: linear-gradient(135deg, #ececec 3%, transparent 3%, transparent 50%, #ececec 50%, #ececec 53%, transparent 53% ), linear-gradient(-135deg, #ececec 3%, transparent 3%, transparent 50%, #ececec 50%, #ececec 53%, transparent 53% ); background-size: 6px 6px; } .footer-content::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient( to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.6) 30%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0) 100% ); pointer-events: none; } .footer-logo { margin-right: 15px; margin-bottom: 0; max-width: 50px; height: auto; flex-shrink: 0; } .footer-divider { display: none; } .footer-text { font-size: 11px; } .form-group label { white-space: normal; text-wrap: balance; } .form-group .idioma-divisor { display: none; } }
+        @media (max-width: 600px) { .captcha-container { flex-direction: column; justify-content: center; align-items: center; gap: 15px; } #captchaCanvas { width: 180px; height: 57px; } }
+        .official-header { background-color: var(--white); border-bottom: 1px solid var(--border-color); padding: 0; text-align: center; }
+        .header-logo { width: 100%; height: auto; display: block; border-radius: 0; object-fit: cover; box-shadow: none; }
+        .button-section { display: flex; justify-content: flex-start; background-color: var(--light-gray-bg); padding: 0; }
+        .button-section button { width: 33.33%; height: auto; padding: 0; border: none; background-color: transparent; cursor: pointer; }
+        .button-section button img { width: 100%; height: auto; display: block; }
+        .button-section .empty-space { width: 33.33%; background-color: var(--light-gray-bg); }
+        .main-content { max-width: 100%; margin: 20px auto; padding: 0 20px; }
+        .form-header { font-family: Arial, sans-serif; text-align: left; margin-bottom: 10px; padding: 0 25px; }
+        .form-title { font-size: 24px; color: var(--navy-blue); font-weight: normal; margin: 0 0 10px 0; font-family: 'Times New Roman', Times, serif; }
+        .form-welcome { font-family: Arial, sans-serif; font-size: 12px; color: #000000; margin: 0; }
+        .form-outer-card { background-color: var(--light-gray-bg); border-radius: 4px; padding: 10px 25px; margin-bottom: 30px; width: 450px; margin-left: 40px; margin-right: auto; }
+        .form-selector-title { font-family: Arial, sans-serif; color: #000000; font-size: 14px; margin: 0 0 10px 0; font-weight: normal; }
+        .form-select { display: block; width: calc(100% - 40px); max-width: none; padding: 2px 5px; font-size: 16px; border: 1px solid #000000; border-radius: 0; box-sizing: border-box; background-color: var(--white); margin-bottom: 10px; margin-left: 20px; margin-right: 0; transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; }
+        .form-select:focus { outline: none; border-color: var(--primary-blue-light); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); background-color: var(--input-focus-bg); }
+        .form-instruction-text { font-family: 'Times New Roman', Times, serif; color: var(--navy-blue); font-size: 12px; margin: 0 0 15px 0; }
+        .form-card { background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 4px; padding: 10px 25px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: normal; color: #000000; margin-bottom: 5px; font-size: 14px; font-family: Arial, sans-serif; }
+        .form-group input { width: calc(100% - 20px); max-width: none; padding: 2px 5px; font-size: 16px; font-family: Arial, sans-serif; border: 1px solid #000000; border-radius: 0; box-sizing: border-box; transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; text-transform: uppercase; background-color: var(--white); margin-left: 0; margin-right: 0; }
+        .form-group input:focus { outline: none; border-color: var(--primary-blue-light); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); background-color: var(--input-focus-bg); }
+        .btn-primary { background-color: transparent; color: transparent; font-size: 0; font-weight: 600; padding: 0; border: none; cursor: pointer; width: 150px; height: 40px; background-image: url('submit.png'); background-size: contain; background-repeat: no-repeat; background-position: center; transition: opacity 0.2s; display: block; margin: 10px auto 10px auto; }
+        .btn-primary:hover { opacity: 0.8; background-color: transparent; }
+        .captcha-wrapper { margin-bottom: 20px; }
+        .captcha-container { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+        .captcha-field-group { display: flex; flex-direction: column; align-items: flex-start; }
+        .captcha-label { font-family: Arial, sans-serif; color: #000000; font-size: 16px; margin: 0 0 5px 0; font-weight: normal; }
+        #captchaCanvas { border: 1px solid #ccc; border-radius: 4px; background-color: #f0f0f0; }
+        .captcha-input-field { padding: 2px 5px; font-size: 16px; font-family: Arial, sans-serif; border: 1px solid #000000; border-radius: 0; box-sizing: border-box; text-transform: uppercase; background-color: var(--white); max-width: 140px; color: #212121; }
+        .captcha-refresh-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #555; padding: 5px; line-height: 1; }
+        .captcha-refresh-btn:hover { color: #000; }
+        #resultContainer { margin-top: 30px; }
+        .result-card { background-color: var(--white); border-left: 5px solid; padding: 25px 30px; border-radius: 0 4px 4px 0; }
+        .result-card.success { border-left-color: var(--success-green); }
+        .result-card.error { border-left-color: var(--error-red); }
+        .result-card.warning { border-left-color: var(--warning-orange); }
+        .result-card h2 { margin-top: 0; margin-bottom: 5px; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+        .result-card p { font-size: 16px; margin-bottom: 12px; }
+        .result-card strong { color: var(--secondary-gray); font-weight: 400; }
+        .result-card .data-value { color: #212121; font-weight: 700; }
+        .result-card .data-value.canceled-comment { color: var(--error-red); font-weight: 700; }
+        .status-badge { display: inline-block; padding: 5px 12px; font-weight: 600; font-size: 14px; border-radius: 50px; }
+        .status-badge.success { background-color: #e8f5e9; color: var(--success-green); }
+        .status-badge.error { background-color: #fde7e7; color: var(--error-red); }
+        .status-badge.warning { background-color: #fff3e0; color: var(--warning-orange); }
+        .status-badge-large { display: inline-block; padding: 5px 12px; font-weight: 600; font-size: 18px; border-radius: 50px; background-color: #fff3e0; color: var(--warning-orange); }
+        .error-message { color: var(--error-red); font-weight: 600; }
+        .footer { text-align: center; margin-top: 50px; padding: 20px; font-size: 14px; color: var(--secondary-gray); }
+        .payment-warning { background-color: #fff3e0; border-left: 4px solid var(--warning-orange); padding: 15px; margin-top: 20px; font-size: 15px; }
+        .payment-warning strong { color: var(--warning-orange); font-weight: 700; }
+        .payment-warning .deadline { font-weight: 700; color: var(--warning-orange); }
+        .icon { width: 24px; height: 24px; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        .icon-calendar { width: 24px; height: 24px; }
+        .icon-location { width: 18px; height: 18px; margin-right: 5px; vertical-align: text-bottom; }
+        .icon-truck { width: 24px; height: 24px; }
+        .location-link { color: var(--location-link-color); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; }
+        .location-link:hover { text-decoration: underline; }
+        .result-card h2.status-title { color: var(--success-green); }
+        .result-card h2.error-title { color: var(--error-red); }
+        .result-card h2 { display: flex; align-items: center; gap: 10px; }
+        .result-card h2 .summary-label-container { display: flex; align-items: center; margin-left: 34px; }
+        .summary-label { font-weight: 700; font-size: 22px; }
+        .summary-label.black-bold { color: #000000; }
+        .summary-label.red-bold { color: var(--error-red); }
+        .barcode-container { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center; }
+        #barcode { max-width: 100%; height: auto; }
+        .barcode-text { font-family: 'Courier New', Courier, monospace; font-weight: bold; color: var(--barcode-text-color); font-size: 22px; margin-top: -4px; }
+        .footer-pattern { position: relative; width: 100%; height: 90px; border: none; background: #ffffff; background-image: linear-gradient(135deg, #ececec 3%, transparent 3%, transparent 50%, #ececec 50%, #ececec 53%, transparent 53% ), linear-gradient(-135deg, #ececec 3%, transparent 3%, transparent 50%, #ececec 50%, #ececec 53%, transparent 53% ); background-size: 6px 6px; margin-top: 30px; margin-bottom: 30px; }
+        .footer-pattern::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient( to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.6) 30%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0) 100% ); pointer-events: none; }
+        .footer-content { position: relative; z-index: 1; display: flex; align-items: flex-start; padding: 20px; height: calc(100% - 40px); }
+        .footer-logo { width: 60px; height: 50px; margin-right: 20px; flex-shrink: 0; }
+        .footer-divider { width: 2px; height: 100%; background-color: #ccc; margin-right: 20px; flex-shrink: 0; }
+        .footer-text { font-size: 12px; color: #333; line-height: 1.5; text-align: left; }
+        .btn-print-confirmation { display: inline-flex; align-items: center; background: linear-gradient(to bottom, #c60000, #8b0000); color: #ffffff; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; padding: 10px 14px; border: 1px solid #5a0000; border-radius: 3px; cursor: pointer; transition: background-color 0.2s; margin-top: 15px; }
+        .btn-print-confirmation span { margin-right: 12px; }
+        .btn-print-confirmation .arrow { width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 8px solid #ffffff; }
+        .btn-print-confirmation:hover { background: linear-gradient(to bottom, #d40000, #9c0000); }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="official-header">
+            <img src="banner.png" alt="Banner del Departamento de Estado" class="header-logo">
+        </header>
+        <div class="button-section">
+            <button><img src="boton1.png" alt="Botón 1"></button>
+            <button><img src="boton2.png" alt="Botón 2"></button>
+            <div class="empty-space"></div>
+        </div>
+        <main class="main-content">
+            <div class="form-header">
+                <h2 class="form-title">Visa Status Check</h2>
+                <p class="form-welcome">Welcome! On this website, you can check your U.S. visa application status.</p>
+            </div>
+            <div class="form-outer-card">
+                <p class="form-selector-title">Visa Application Type</p>
+                <select class="form-select" id="visaTypeSelector">
+                    <option value="iv">INMIGRANT VISA (IV)</option>
+                    <option value="niv" selected>NO INMIGRANT VISA (NIV)</option>
+                </select>
+                <p class="form-instruction-text">Please enter your Case Number.</p>
+                <div class="form-card">
+                    <form id="verificationForm">
+                        <div class="form-group">
+                            <label for="folio">Immigrant Visa Application Number <span class="idioma-divisor">/</span> Número de Folio de Visa de Inmigrante</label>
+                            <input type="text" id="folio" name="folio" placeholder="" required>
+                            <small style="color: #5f5f5f; font-size: 14px; margin-top: 5px; display: block;">(e.g., MTL1999626025)</small>
+                            <p style="font-family: 'Arial', Times, serif; font-size: 11px; color: #5f5f5f; margin-top: 10px; margin-bottom: 0;">NOTE: For applicants who completed their forms prior to January 1, 2022, please put NA into the Passport and Surname fields.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="pasaporte">Passport Number <span class="idioma-divisor">/</span> Número de Pasaporte</label>
+                            <input type="text" id="pasaporte" name="pasaporte" placeholder="" required>
+                        </div>
+                    </form>
+                </div>
+                <button type="submit" form="verificationForm" class="btn-primary">Submit</button>
+                <div class="captcha-wrapper">
+                    <div class="captcha-container">
+                        <div class="captcha-field-group">
+                            <p class="captcha-label">Enter the code as shown</p>
+                            <input type="text" id="captcha-input-field" class="captcha-input-field" readonly>
+                        </div>
+                        <canvas id="captchaCanvas" width="220" height="70"></canvas>
+                        <button type="button" class="captcha-refresh-btn" title="Refrescar código">↻</button>
+                    </div>
+                </div>
+            </div>
+            <div id="resultContainer"></div>
+            <div class="footer-pattern">
+                <div class="footer-content">
+                    <img src="footer-logo.png" alt="Logo" class="footer-logo">
+                    <div class="footer-divider"></div>
+                    <div class="footer-text">
+                        This site is managed by the Bureau of Consular Affairs, U.S. Department of State. External links to other Internet sites should not be construed as an endorsement of the views contained therein. Copyright Information Disclaimers
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- CONFIGURACIÓN Y DATOS ---
+            // --- ELIMINACIÓN DEL RASTRO DEL SERVIDOR ---
+            // La constante API_URL ya no es necesaria y se elimina.
+            // --- CAMBIO CLAVE: El marcador de datos va aquí ---
+            // El script de admin.html reemplazará esta línea con todos los datos de los clientes.
+             let baseDeDatos = {
+  "AAKIJNHILA": {
+    "folio": "AAKIJNHILA",
+    "apellidos": "SANCHEZ ZUNIGA",
+    "nombres": "JOSE LEON",
+    "ciudadNacimiento": "CIUDAD DEL MAIZ",
+    "estadoNacimiento": "SAN LUIS POTOSI",
+    "fechaNacimiento": "1972-04-19",
+    "genero": "MALE",
+    "pasaporte": "N09110910",
+    "estatus": "Visa Aprobada",
+    "cita": "26/12/2025 a las 14:30",
+    "cas": "Guadalajara",
+    "comentarios": "¡FELICIDADES! SU TRÁMITE HA SIDO APROBADO. PÓNGASE EN CONTACTO CON SU AGENTE PARA CONOCER LOS SIGUIENTES PASOS.",
+    "pagoLimite": null
+  },
+  "AAPJ7JNUAH": {
+    "folio": "AAPJ7JNUAH",
+    "apellidos": "ESCOBAR MORALES",
+    "nombres": "MARIBEL",
+    "ciudadNacimiento": "CULIACAN",
+    "estadoNacimiento": "SINALOA",
+    "fechaNacimiento": "1973-06-16",
+    "genero": "FEMALE",
+    "pasaporte": "N16435685",
+    "estatus": "Requiere Pago",
+    "cita": "31/10/2025 a las 12:45",
+    "cas": "Hermosillo",
+    "comentarios": "SU CASO HA SIDO APROBADO. DISPONE DE UN LÍMITE DE TIEMPO PARA REALIZAR EL PAGO Y RESERVAR SU CITA.",
+    "pagoLimite": "2025-12-19T04:30:00"
+  },
+  "AA5V7ZXMFP": {
+    "folio": "AA5V7ZXMFP",
+    "apellidos": "GURROLA AVALOS",
+    "nombres": "ROSA MARIA",
+    "ciudadNacimiento": "DURANGO",
+    "estadoNacimiento": "DURANGO",
+    "fechaNacimiento": "1985-08-30",
+    "genero": "FEMALE",
+    "pasaporte": "N06504040",
+    "estatus": "Cancelado - Trámite finalizado",
+    "cita": "10/04/2025 a las 12:45",
+    "cas": "Monterrey",
+    "comentarios": "**TRÁMITE CANCELADO.** EL PLAZO DE PAGO EXPIRÓ. POR FAVOR, COMUNÍQUESE CON SU AGENTE PARA REACTIVAR SU CASO.",
+    "pagoLimite": null
+  },
+  "AA68M3EC7Y": {
+    "folio": "AA68M3EC7Y",
+    "apellidos": "DEVORA HUERTA",
+    "nombres": "ARTURO",
+    "ciudadNacimiento": "DURANGO",
+    "estadoNacimiento": "DURANGO",
+    "fechaNacimiento": "1997-12-15",
+    "genero": "MALE",
+    "pasaporte": "N02725848",
+    "estatus": "Cancelado - Trámite finalizado",
+    "cita": "10/04/2025 a las 13:00",
+    "cas": "Monterrey",
+    "comentarios": "**TRÁMITE CANCELADO.** EL PLAZO DE PAGO EXPIRÓ. POR FAVOR, COMUNÍQUESE CON SU AGENTE PARA REACTIVAR SU CASO.",
+    "pagoLimite": null
+  },
+  "AA16JER37I": {
+    "folio": "AA16JER37I",
+    "apellidos": "DEVORA HUERTA",
+    "nombres": "ALMA JACQELIN",
+    "ciudadNacimiento": "DURANGO",
+    "estadoNacimiento": "DURANGO",
+    "fechaNacimiento": "1999-04-16",
+    "genero": "FEMALE",
+    "pasaporte": "N05973790",
+    "estatus": "Cancelado - Trámite finalizado",
+    "cita": "10/04/2025 a las 13:15",
+    "cas": "Monterrey",
+    "comentarios": "**TRÁMITE CANCELADO.** EL PLAZO DE PAGO EXPIRÓ. POR FAVOR, COMUNÍQUESE CON SU AGENTE PARA REACTIVAR SU CASO.",
+    "pagoLimite": null
+  },
+  "AAINR2TL1B": {
+    "folio": "AAINR2TL1B",
+    "apellidos": "HUERTA TORRES",
+    "nombres": "MA GLORIA",
+    "ciudadNacimiento": "DUR",
+    "estadoNacimiento": "DURANGO",
+    "fechaNacimiento": "1968-06-19",
+    "genero": "FEMALE",
+    "pasaporte": "N02373746",
+    "estatus": "Cancelado - Trámite finalizado",
+    "cita": "10/04/2025 a las 13:30",
+    "cas": "Monterrey",
+    "comentarios": "**TRÁMITE CANCELADO.** EL PLAZO DE PAGO EXPIRÓ. POR FAVOR, COMUNÍQUESE CON SU AGENTE PARA REACTIVAR SU CASO.",
+    "pagoLimite": null
+  }
+}; // El login se manejará en la página del cliente  // El login se manejará en la página del cliente
+            // --- FIN DEL CAMBIO CLAVE ---
+
+            const CAS = {
+                "Guadalajara": { direccion: "Consulado General de los Estados Unidos en Guadalajara, Calle Progreso 175, Guadalajara, Jalisco.", mapsLink: "https://www.google.com/maps/search/?api=1&query=Consulado+General+de+los+Estados+Unidos+en+Guadalajara", entregaDocs: "Applicant Service Centers — Guadalajara, Jalisco. Av. Unión 210, Col. Obrera Centro, 44100 Guadalajara, Jalisco, México." },
+                "Ciudad Juarez": { direccion: "Consulado General de los Estados Unidos en Ciudad Juárez, Avenida López Mateos 921 N, Zona Pronaf, Ciudad Juárez, Chihuahua.", mapsLink: "https://www.google.com/maps/search/?api=1&query=Consulado+General+de+los+Estados+Unidos+en+Ciudad+Juarez", entregaDocs: "CAS Centro de Atención a Solicitantes Ciudad Juárez — Ciudad Juárez, Chihuahua. Av. Paseo de la Victoria #3640-L-2, Col. Partido Senecú, 32543 Juárez, Chih., México." },
+                "Tijuana": { direccion: "Consulado General de los Estados Unidos en Tijuana, Paseo de los Héroes 8015, Zona Río, Tijuana, Baja California.", mapsLink: "https://www.google.com/maps/search/?api=1&query=Consulado+General+de+los+Estados+Unidos+en+Tijuana", entregaDocs: "Centro de Atención a Solicitantes (CAS) Tijuana — Tijuana, Baja California. Blvd. Agua Caliente #10470, Col. Revolución, 22015 Tijuana, B.C., México." },
+                "Ciudad de Mexico": { direccion: "Embajada de los Estados Unidos en México, Paseo de la Reforma 305, Colonia Cuauhtémoc, Ciudad de México.", mapsLink: "https://www.google.com/maps/search/?api=1&query=Embajada+de+los+Estados+Unidos+en+Mexico", entregaDocs: "CAS VISA USA CDMX — Ciudad de México (CDMX). Hamburgo #213, PB Anexo, Col. Juárez, Cuauhtémoc, 06600 Ciudad de México, CDMX, México." },
+                "Monterrey": { direccion: "Consulado General de los Estados Unidos en Monterrey, Ave. Constitución 411, Piso 12, Monterrey, Nuevo León.", mapsLink: "https://www.google.com/maps/search/?api=1&query=Consulado+General+de+los+Estados+Unidos+en+Monterrey", entregaDocs: "CAS Monterrey Centro de Atención a Solicitantes — Monterrey, Nuevo León. Hidalgo #400-A, Col. Centro, 64000 Monterrey, N.L., México." },
+                "Matamoros": { direccion: "Consulado General de los Estados Unidos en Matamoros, Calle Primera 2000, Colonia Pedro Moreno, Matamoros, Tamaulipas.", mapsLink: "https://www.google.com/maps/search/?api=1&query=Consulado+General+de+los+Estados+Unidos+en+Matamoros", entregaDocs: "CAS Matamoros — Matamoros, Tamaulipas. Avenida de las Rosas #70-72, Col. Jardín, 87330 Heroica Matamoros, Tamps., México." },
+                "Hermosillo": { direccion: "Consulado General de los Estados Unidos en Hermosillo, Blvd. Luis Donaldo Colosio s/n, Hermosillo, Sonora.", mapsLink: "https://www.google.com/maps/search/?api=1&query=Consulado+General+de+los+Estados+Unidos+en+Hermosillo", entregaDocs: "CAS (Centro de Atención al Solicitante) Hermosillo — Hermosillo, Sonora. Blvd. Paseo Río Sonora Norte #76-201, Proyecto Río Sonora, 83260 Hermosillo, Son., México." }
+            };
+
+            const ICONS = {
+                success: '<img src="icono-exito.png" class="icon" alt="Éxito">',
+                error: '<img src="icono-error.png" class="icon" alt="Error">',
+                calendar: '<img src="icono-calendario.png" class="icon-calendar" alt="Fecha">',
+                location: '<img src="icono-ubicacion.png" class="icon-location" alt="Ubicación">',
+                truck: '<img src="icono-camion.png" class="icon-truck" alt="Entrega">'
+            };
+
+            // --- LÓGICA DEL CAPTCHA ---
+            let captchaTexto = "";
+            function colorAleatorio() { return "rgb(" + Math.floor(Math.random() * 200) + "," + Math.floor(Math.random() * 200) + "," + Math.floor(Math.random() * 200) + ")"; }
+            function generarCaptcha() {
+                const canvas = document.getElementById("captchaCanvas"); if (!canvas) return;
+                const ctx = canvas.getContext("2d"); const fondoColor = colorAleatorio(); ctx.fillStyle = fondoColor; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; captchaTexto = "";
+                for (let i = 0; i < 6; i++) { captchaTexto += chars.charAt(Math.floor(Math.random() * chars.length)); }
+                ctx.fillStyle = colorAleatorio(); ctx.font = "bold 40px Arial";
+                for (let i = 0; i < captchaTexto.length; i++) { const letra = captchaTexto[i]; const x = 20 + i * 30 + (Math.random() * 4 - 2); const y = 50 + (Math.random() * 6 - 3); const angulo = (Math.random() - 0.5) * 0.4; ctx.save(); ctx.translate(x, y); ctx.rotate(angulo); ctx.fillText(letra, 0, 0); ctx.restore(); }
+                for (let i = 0; i < 8; i++) { ctx.strokeStyle = colorAleatorio(); ctx.lineWidth = 2 + Math.random() * 2; ctx.beginPath(); ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height); ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height); ctx.stroke(); }
+                for (let i = 0; i < 80; i++) { ctx.fillStyle = colorAleatorio(); const x = Math.random() * canvas.width; const y = Math.random() * canvas.height; ctx.fillRect(x, y, 2, 2); }
+                const inputField = document.getElementById('captcha-input-field'); if(inputField) { inputField.value = captchaTexto; }
+            }
+            function validarCaptcha() { return captchaTexto !== ""; }
+
+            // --- FUNCIONES AUXILIARES ---
+            function formatearFechaCita(cadenaFecha, estatus) { if (!cadenaFecha || cadenaFecha === "N/A" || cadenaFecha.includes("Pendiente")) return "Fecha por confirmar"; const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"].map(m => m.charAt(0).toUpperCase() + m.slice(1)); const match = cadenaFecha.match(/(\d{2})\/(\d{2})\/(\d{4})\s+a\s+las\s+(\d{2}):(\d{2})/); if (match) { const [, dia, mes, anio, hora, minuto] = match; const nombreMes = meses[parseInt(mes, 10) - 1]; const fechaFormateada = `${parseInt(dia)} ${nombreMes}, ${anio}, ${hora}:${minuto}`; if (estatus.includes("Requiere Pago")) return `${fechaFormateada} (Confirmar con pago)`; return fechaFormateada; } return cadenaFecha; }
+            function checkExpiration(folio, baseDeDatos) { const datosCliente = baseDeDatos[folio]; if (!datosCliente || !datosCliente.pagoLimite) return; const now = new Date().getTime(); const distance = new Date(datosCliente.pagoLimite).getTime() - now; if (distance < 0) { baseDeDatos[folio].estatus = "Cancelado - Trámite finalizado"; baseDeDatos[folio].cita = "N/A"; baseDeDatos[folio].comentarios = "**TRÁMITE CANCELADO.** EL PLAZO DE PAGO EXPIRÓ. POR FAVOR, COMUNÍQUESE CON SU AGENTE PARA REACTIVAR SU CASO."; delete baseDeDatos[folio].pagoLimite; document.getElementById('verificationForm').dispatchEvent(new Event('submit')); } }
+
+            // --- MANEJADOR DEL FORMULARIO PRINCIPAL (VERSIÓN LOCAL) ---
+            document.getElementById('verificationForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                if (!validarCaptcha()) { const resultContainer = document.getElementById('resultContainer'); resultContainer.innerHTML = `<div class="result-card error"><h2 class="error-title">${ICONS.error} ERROR DE VERIFICACIÓN</h2><p>No se pudo verificar el captcha. Por favor, recargue la página e intente de nuevo.</p></div>`; generarCaptcha(); return; }
+                if (Object.keys(baseDeDatos).length === 0) { const resultContainer = document.getElementById('resultContainer'); resultContainer.innerHTML = `<div class="result-card error"><h2 class="error-title">${ICONS.error} ERROR DE DATOS</h2><p>No se encontraron los datos necesarios para la consulta. Esta página puede estar dañada o no fue generada correctamente.</p></div>`; return; }
+                const folioIngresado = document.getElementById('folio').value.trim().toUpperCase().replace(/\s/g, '');
+                const pasaporteIngresado = document.getElementById('pasaporte').value.trim().toUpperCase().replace(/\s/g, '');
+                const resultContainer = document.getElementById('resultContainer');
+                const datosCliente = baseDeDatos[folioIngresado];
+
+                if (datosCliente && datosCliente.pasaporte === pasaporteIngresado) {
+                    let isCanceled = datosCliente.estatus.includes("Cancelado"), isPaymentRequired = datosCliente.estatus.includes("Requiere Pago"), isProcessOrConfirmed = datosCliente.estatus.includes("Proceso") || datosCliente.estatus.includes("Confirmada");
+                    let icon = ICONS.success; let titleClass = "status-title"; let titleText = "Estado Actual";
+                    if (isCanceled) { icon = ICONS.error; titleClass = "error-title"; titleText = "TRÁMITE CANCELADO"; }
+                    let statusClass = 'success'; if (isCanceled) { statusClass = 'error'; } else if (isPaymentRequired) { statusClass = 'warning'; }
+                    let summaryLabelHtml = '';
+                    if (isCanceled) { summaryLabelHtml = `<div class="summary-label-container"><span class="summary-label red-bold">CANCELADO</span></div>`; }
+                    else if (isPaymentRequired) { summaryLabelHtml = `<div class="summary-label-container"><span class="status-badge-large">CITA EN ESPERA DE PAGO</span></div>`; }
+                    // --- CAMBIO 1: CORREGIR EL CASE 'VISA APROBADA' ---
+                    else if (datosCliente.estatus === "Visa Aprobada") {
+                        summaryLabelHtml = `<div class="summary-label-container"><span class="summary-label black-bold">Visa Aprobada</span></div>`;
+                    }
+                    else if (isProcessOrConfirmed) { summaryLabelHtml = `<div class="summary-label-container"><span class="summary-label black-bold">Cita Asistir</span></div>`; }
+                    // --- FIN DEL CAMBIO 1 ---
+                    const casInfo = CAS[datosCliente.cas] || { direccion: "No especificado", mapsLink: "#", entregaDocs: "" };
+                    let formattedCita = ""; if (!datosCliente.estatus.includes("Sin Cita")) { if (isCanceled) { formattedCita = "Cancelado - Trámite finalizado"; } else { formattedCita = formatearFechaCita(datosCliente.cita, datosCliente.estatus); } }
+                    let ciudadMostrar = datosCliente.cas.replace("Ciudad de Mexico", "Mexico City").replace("Guadalajara", "Guadalajara").replace("Ciudad Juarez", "Ciudad Juarez").replace("Tijuana", "Tijuana").replace("Monterrey", "Monterrey").replace("Matamoros", "Matamoros").replace("Hermosillo", "Hermosillo");
+                    let paymentWarningHtml = ''; if (isPaymentRequired && datosCliente.pagoLimite) { const deadlineDate = new Date(datosCliente.pagoLimite); const options = { year: 'numeric', month: 'long', day: 'numeric' }; const formattedDeadline = deadlineDate.toLocaleDateString('es-ES', options); const formattedTime = deadlineDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false }); paymentWarningHtml = `<div class="payment-warning"><strong>AVISO IMPORTANTE:</strong> Su trámite requiere pago. Dispone de un plazo límite hasta el <span class="deadline">${formattedDeadline} a las ${formattedTime}</span> (Hora Local) para completar esta acción. De no hacerlo, su trámite será cancelado automáticamente.</div>`; setTimeout(() => checkExpiration(folioIngresado, baseDeDatos), 1000); }
+                    let entregaDocsHtml = ''; if (!isCanceled && !datosCliente.estatus.includes("Sin Cita") && casInfo.entregaDocs) { entregaDocsHtml = `<p>${ICONS.truck}<strong> Entrega de Documentos:</strong> <span class="data-value">${casInfo.entregaDocs}</span></p>`; }
+                    let citaHtml = ''; if (!isCanceled && formattedCita) { citaHtml = `<p>${ICONS.calendar}<strong> Cita CAS:</strong> <span class="data-value">${formattedCita}</span> ${ciudadMostrar} Hora Local at ${ciudadMostrar} ASC <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(casInfo.entregaDocs)}" target="_blank" class="location-link">${ICONS.location} Cómo llegar</a></p>`; }
+                    let formattedFechaNac = "No registrada"; if(datosCliente.fechaNacimiento) { const dateObj = new Date(datosCliente.fechaNacimiento + "T00:00:00"); const options = { year: 'numeric', month: 'long', day: 'numeric' }; formattedFechaNac = dateObj.toLocaleDateString('es-ES', options); }
+                    let folioConEspacios = folioIngresado.split('').join(' ');
+                    let commentClass = 'data-value'; if(isCanceled) { commentClass = 'data-value canceled-comment'; }
+                    let barcodeHtml = ''; if (!isCanceled) { barcodeHtml = ` <div class="barcode-container"> <svg id="barcode"></svg> <div class="barcode-text">${folioConEspacios}</div> </div> `; }
+                    let folioHtml = ''; if (!isCanceled) { folioHtml = `<p><strong>Número de Folio:</strong> <span class="data-value">${folioConEspacios}</span></p>`; }
+                    let printConfirmationButtonHtml = ''; if (datosCliente.estatus.includes("Confirmada") && !isCanceled) { printConfirmationButtonHtml = ` <button class="btn-print-confirmation" onclick="window.open('generar_cita.html?folio=${folioIngresado}', '_blank')"> <span>Imprimir Confirmación</span> <div class="arrow"></div> </button> `; }
+                    const nombreCompleto = `${datosCliente.apellidos || ''}, ${datosCliente.nombres || ''}`.trim();
+                    resultContainer.innerHTML = ` <div class="result-card ${statusClass}"> <h2 class="${titleClass}">${icon} ${titleText}</h2> ${summaryLabelHtml} <p><strong>Nombre del Solicitante:</strong> <span class="data-value">${nombreCompleto}</span></p> <p><strong>Fecha de Nacimiento:</strong> <span class="data-value">${formattedFechaNac}</span></p> <p><strong>Número de Pasaporte:</strong> <span class="data-value">${datosCliente.pasaporte || 'No registrado'}</span></p> ${folioHtml} <p><strong>Estatus Actual:</strong> <span class="status-badge ${isCanceled ? 'error' : (isPaymentRequired ? 'warning' : 'success')}">${datosCliente.estatus}</span></p> ${citaHtml} ${entregaDocsHtml} <p><strong>Comentarios del Oficial de Caso:</strong> <span class="${commentClass}">${datosCliente.comentarios}</span></p> ${paymentWarningHtml} ${barcodeHtml} ${printConfirmationButtonHtml} </div>`;
+                    if (!isCanceled) { JsBarcode("#barcode", folioIngresado, { format: "CODE128", width: 2, height: 60, displayValue: false }); }
+                } else {
+                    resultContainer.innerHTML = `<div class="result-card error"><h2 class="error-title">${ICONS.error} DATOS INCORRECTOS O NO ENCONTRADOS</h2><p>El número de Folio y/o el número de Pasaporte que ingresó no coinciden con nuestros registros. Por favor, verifique la información e intente de nuevo.</p></div>`;
+                }
+            });
+
+            // --- Event Listeners ---
+            const refreshButton = document.querySelector('.captcha-refresh-btn'); if (refreshButton) { refreshButton.addEventListener('click', function(event) { event.preventDefault(); generarCaptcha(); }); }
+            // --- INICIALIZACIÓN ---
+            window.onload = function() { generarCaptcha(); };
+        });
+
+        // --- CAMBIO 2: ACTUALIZAR URL BASE EN generatePDF ---
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const folio = new URLSearchParams(window.location.search).get('folio');
+            const clientData = baseDeDatos[folio];
+            if (!clientData) { alert('No se pueden generar los PDF sin datos del cliente.'); return; }
+            const urlBase = "https://ceacvisastatuscheck.github.io/application.confirmation/"; // URL BASE ACTUALIZADA
+            const urlCompleta = window.location.href;
+            // El resto de la función generatePDF sigue igual...
+            doc.setFont("helvetica"); doc.setFontSize(20); doc.text("Confirmacion de Cita - CEAC", 105, 30, { align: "center" });
+            doc.setFontSize(12); doc.text("Centro de Atencion a Ciudadanos", 105, 40, { align: "center" });
+            doc.addImage("https://i.ibb.co/6P6M4QG/logo-ceac.png", 'PNG', 75, 50, 60, 30);
+            doc.setFontSize(11); doc.text(`Folio de Expediente: ${clientData.folio}`, 20, 100);
+            doc.text(`Nombre Completo: ${clientData.apellidos}, ${clientData.nombres}`, 20, 110);
+            doc.text(`Consulado (CAS): ${clientData.cas}`, 20, 120); doc.text(`Pasaporte: ${clientData.pasaporte}`, 20, 130);
+            doc.text(`Fecha y Hora de Cita: ${clientData.cita}`, 20, 140); doc.text(`Estado Actual: ${clientData.estatus}`, 20, 150);
+            doc.text("Este es un documento oficial. Por favor, presentarlo el dia de su cita.", 20, 170);
+            doc.text("Enlace de verificacion online:", 20, 185); doc.setTextColor(0, 0, 255);
+            doc.text(urlCompleta, 20, 195, { maxWidth: 170 }); doc.save(`Confirmacion_Cita_${clientData.folio}.pdf`);
+        }
+        // --- FIN DEL CAMBIO 2 ---
+    </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+</body>
+</html>
